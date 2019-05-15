@@ -1,6 +1,6 @@
 /********************************************************************************
  *  File Name:
- *    mb8rs64v.hpp
+ *    mb85rs64v.hpp
  *
  *  Description:
  *    Implements the device driver for the Fujitsu FRAM Memory 64kb. Was originally
@@ -81,7 +81,18 @@ namespace FRAM::Fujitsu
   class MB85RS64V : public Chimera::Modules::Memory::Device, public Chimera::SPI::SPIAcceptor
   {
   public:
-    Chimera::Status_t initialize();
+    /**
+     *	Initializes the low level resources needed to communicate with the 
+     *	chip. If some of the SPI configuration options are not supported, they 
+     *	will be adjusted accordingly. 
+     *	
+     *  If the device ID can be successfully read from the chip, then the setup
+     *  is considered a success.
+     *	
+     *	@param[in]	setup       SPI setup parameters (optional if attached SPI is pre-configured)
+     *	@return Chimera::Status_t
+     */
+    Chimera::Status_t initialize( Chimera::SPI::Setup *const setup );
 
     Chimera::Status_t write( const size_t address, const uint8_t *const data, const size_t length ) final override;
 
