@@ -66,8 +66,8 @@ static void reset_test()
   setup.channel = 3;
 }
 
-TEST_GROUP( FRAM ){};
+TEST_GROUP( FRAM_OperationalTests ){};
 
-TEST( FRAM, t1 )
+TEST( FRAM_OperationalTests, initialization )
 {
 }
