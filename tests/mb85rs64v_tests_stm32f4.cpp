@@ -48,6 +48,10 @@ static void reset_test()
 
   memset( &setup, 0, sizeof( Chimera::SPI::Setup ) );
 
+  /*------------------------------------------------
+  This should be the first group of four pins on CN7  
+  for the STM32F4 Nucleo dev board.
+  ------------------------------------------------*/
   setup.MOSI.port      = Port::PORTC;
   setup.MOSI.pin       = 12;
   setup.MOSI.alternate = GPIO_AF6_SPI3;
@@ -64,10 +68,28 @@ static void reset_test()
   setup.CS.pin  = 2;
 
   setup.channel = 3;
+  setup.clockFrequency = 1000000;
 }
 
 TEST_GROUP( FRAM_OperationalTests ){};
 
 TEST( FRAM_OperationalTests, initialization )
 {
+  reset_test();
+
+  auto result = fram.attachSPI( spi );
+  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+
+  result = fram.initialize( &setup, Chimera::Hardware::SubPeripheralMode::BLOCKING );
+  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+}
+
+TEST( FRAM_OperationalTests, readId )
+{
+  reset_test();
+  fram.attachSPI( spi );
+  fram.initialize( &setup, Chimera::Hardware::SubPeripheralMode::BLOCKING );
+
+  uint32_t foundID = fram.readID();
+  CHECK_EQUAL( FRAM::Fujitsu::MB85RS64V_DEVID, foundID );
 }

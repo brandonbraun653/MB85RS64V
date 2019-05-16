@@ -22,12 +22,18 @@
 #include <limits>
 
 /* Chimera Includes */
+#include <Chimera/spi.hpp>
 #include <Chimera/interface/spi_intf.hpp>
 #include <Chimera/modules/memory/device.hpp>
 #include <Chimera/types/spi_types.hpp>
 
 namespace FRAM::Fujitsu
 {
+  /*------------------------------------------------
+  Device ID
+  ------------------------------------------------*/
+  static constexpr uint32_t MB85RS64V_DEVID = 0x047F0302;
+
   /*------------------------------------------------
   Maximum clock frequency for the chip: 20MHz
   ------------------------------------------------*/
@@ -81,6 +87,9 @@ namespace FRAM::Fujitsu
   class MB85RS64V : public Chimera::Modules::Memory::Device, public Chimera::SPI::SPIAcceptor
   {
   public:
+    MB85RS64V();
+    ~MB85RS64V();
+
     /**
      *	Initializes the low level resources needed to communicate with the 
      *	chip. If some of the SPI configuration options are not supported, they 
@@ -92,7 +101,14 @@ namespace FRAM::Fujitsu
      *	@param[in]	setup       SPI setup parameters (optional if attached SPI is pre-configured)
      *	@return Chimera::Status_t
      */
-    Chimera::Status_t initialize( Chimera::SPI::Setup *const setup );
+    Chimera::Status_t initialize( Chimera::SPI::Setup *const setup, const Chimera::Hardware::SubPeripheralMode mode );
+    
+    /**
+     *  Reads the device ID off the chip. Should be 0x047F0302.
+     *  
+     *  @return uint32_t
+     */
+    uint32_t readID();
 
     Chimera::Status_t write( const size_t address, const uint8_t *const data, const size_t length ) final override;
 
@@ -114,6 +130,12 @@ namespace FRAM::Fujitsu
 
   protected:
   private:
+    bool initialized;
+    Chimera::SPI::SPIClass_sPtr spi;
+
+    static constexpr uint8_t bufferSize = 5u;
+    std::array<uint8_t, bufferSize> txBuffer;
+    std::array<uint8_t, bufferSize> rxBuffer;
   };
 
   using MB85RS64V_sPtr = std::shared_ptr<MB85RS64V>;
