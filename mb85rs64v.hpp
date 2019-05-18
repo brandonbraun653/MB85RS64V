@@ -83,8 +83,18 @@ namespace FRAM::Fujitsu
   static constexpr uint8_t MB85RS64V_OP_READ  = 0x03; /**< Read from Memory */
   static constexpr uint8_t MB85RS64V_OP_WRITE = 0x02; /**< Write to Memory */
   static constexpr uint8_t MB85RS64V_OP_RDID  = 0x9F; /**< Read Device ID */
+  
+  /*------------------------------------------------
+  Status Register Bits
+  ------------------------------------------------*/
+  static constexpr uint8_t MB85RS64V_SR_BIT_WPEN = 1u << 7;
+  static constexpr uint8_t MB85RS64V_SR_BIT_BP1  = 1u << 3;
+  static constexpr uint8_t MB85RS64V_SR_BIT_BP0  = 1u << 2;
+  static constexpr uint8_t MB85RS64V_SR_BIT_WEL  = 1u << 1;
 
-  class MB85RS64V : public Chimera::Modules::Memory::Device, public Chimera::SPI::SPIAcceptor
+  class MB85RS64V : public Chimera::Modules::Memory::Device,
+                    public Chimera::Modules::Memory::AccessProtected,
+                    public Chimera::SPI::SPIAcceptor
   {
   public:
     MB85RS64V();
@@ -109,6 +119,26 @@ namespace FRAM::Fujitsu
      *  @return uint32_t
      */
     uint32_t readID();
+    
+    /**
+     *  Reads the device status register
+     *  
+     *  Bit 7: Write Protect Enable
+     *  Bit 6: X
+     *  Bit 5: X
+     *  Bit 4: X
+     *  Bit 3: Block Protect 1
+     *  Bit 2: Block Protect 0
+     *  Bit 1: Write Enable Latch
+     *  Bit 0: X, Fixed to zero
+     *  
+     *  @return uint8_t 
+     */
+    uint8_t readStatus();
+
+    Chimera::Status_t writeProtect( const bool state );
+    
+    Chimera::Status_t readProtect( const bool state );
 
     Chimera::Status_t write( const size_t address, const uint8_t *const data, const size_t length ) final override;
 
@@ -126,9 +156,32 @@ namespace FRAM::Fujitsu
 
     Chimera::Status_t attachSPI( const Chimera::SPI::SPIClass_sPtr &spi ) final override;
 
-    Chimera::Status_t attachSPI( Chimera::SPI::SPIClass_uPtr spi ) final override;
+    /**
+     *  Sets the write enable latch bit in the status register to indicate
+     *  that the FRAM array and the status register are writable.
+     *  
+     *  @return Chimera::Status_t
+     */
+    Chimera::Status_t writeEnable();
 
-  protected:
+    /**
+     *  Resets the write enable latch bit in the status register to indicate
+     *  that the FRAM array and the status register are not writable.
+     *  
+     *  @return Chimera::Status_t
+     */
+    Chimera::Status_t writeDisable();
+
+    /**
+     *  Writes data to the status register. This is only valid if the write
+     *  enable latch bit (1) is set, otherwise the data is discarded. 
+     *  
+     *  @note   Only bits 2, 3, and 7 can be set/cleared.
+     *  
+     *  @return Chimera::Status_t
+     */
+    Chimera::Status_t writeStatusRegister( const uint8_t val );
+
   private:
     bool initialized;
     Chimera::SPI::SPIClass_sPtr spi;
