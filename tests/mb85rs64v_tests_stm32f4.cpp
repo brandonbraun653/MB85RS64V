@@ -111,18 +111,18 @@ static const std::array<uint8_t, dataSize> randomData = {
 };
 
 static std::array<uint8_t, dataSize> dataBuffer;
+static bool driverAllocated = false;
 
 static void reset_test()
 {
   using namespace Chimera::Hardware;
   using namespace Chimera::SPI;
   using namespace Chimera::GPIO;
-  
-  static bool driverAllocated = false;
 
   if ( !driverAllocated )
   {
     spi = std::make_shared<Chimera::SPI::SPIClass>();
+    driverAllocated = true;
   }
 
   memset( &setup, 0, sizeof( Chimera::SPI::Setup ) );
