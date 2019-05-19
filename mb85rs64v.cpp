@@ -248,9 +248,8 @@ namespace FRAM::Fujitsu
     if ( initialized )
     {
       spi->setChipSelect( Chimera::GPIO::State::LOW );
-      spi->writeBytes( &MB85RS64V_OP_WREN, sizeof( MB85RS64V_OP_WREN ), 500 );
+      result = spi->writeBytes( &MB85RS64V_OP_WREN, sizeof( MB85RS64V_OP_WREN ), 500 );
       spi->setChipSelect( Chimera::GPIO::State::HIGH );
-      result = Chimera::CommonStatusCodes::OK;
     }
 
     return result;
