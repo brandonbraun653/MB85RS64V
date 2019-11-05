@@ -23,6 +23,7 @@
 
 /* Chimera Includes */
 #include <Chimera/extensions/spi_ext.hpp>
+#include <Chimera/gpio.hpp>
 #include <Chimera/modules/memory/device.hpp>
 #include <Chimera/spi.hpp>
 #include <Chimera/threading.hpp>
@@ -187,17 +188,23 @@ namespace FRAM::Fujitsu
     /*------------------------------------------------
     SPI Acceptor Interface
     ------------------------------------------------*/
-    Chimera::Status_t attachSPI( const Chimera::SPI::SPIClass_sPtr &spi ) final override;
-    Chimera::Status_t attachSPI( const Chimera::SPI::SPIClass_sPtr &spi, Chimera::SPI::DriverConfig &setup ) final override;
+    Chimera::Status_t attachSPI( Chimera::SPI::SPIClass_sPtr &spi ) final override;
+    Chimera::Status_t attachSPI( Chimera::SPI::SPIClass_sPtr &spi, Chimera::SPI::DriverConfig &setup ) final override;
     Chimera::Status_t attachSPI( Chimera::SPI::SPIClass_uPtr spi ) final override;
+    Chimera::Status_t attachCS( Chimera::GPIO::PinInit &CSConfig ) final override;
+    Chimera::Status_t attachCS( Chimera::GPIO::GPIOClass_sPtr &CSPin ) final override;
+    Chimera::Status_t attachCS( Chimera::GPIO::GPIOClass_uPtr CSPin ) final override;
 
   private:
     bool initialized;
     Chimera::SPI::SPIClass_sPtr spi;
+    Chimera::GPIO::GPIOClass_uPtr CSPin;
 
     static constexpr uint8_t bufferSize = 5u;
     std::array<uint8_t, bufferSize> txBuffer;
     std::array<uint8_t, bufferSize> rxBuffer;
+
+    Chimera::Status_t setChipSelect( const Chimera::GPIO::State value );
   };
 
   using MB85RS64V_sPtr = std::shared_ptr<MB85RS64V>;
