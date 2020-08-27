@@ -128,7 +128,7 @@ static void reset_test()
   memset( &setup, 0, sizeof( Chimera::SPI::Setup ) );
 
   /*------------------------------------------------
-  This should be the first group of four pins on CN7  
+  This should be the first group of four pins on CN7
   for the STM32F4 Nucleo dev board.
   ------------------------------------------------*/
   setup.MOSI.port      = Port::PORTC;
@@ -157,10 +157,10 @@ TEST( FRAM_OperationalTests, initialization )
   reset_test();
 
   auto result = fram.attachSPI( spi );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
 
   result = fram.initialize( &setup, Chimera::Hardware::SubPeripheralMode::BLOCKING );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
 }
 
 TEST( FRAM_OperationalTests, readId )
@@ -186,39 +186,39 @@ TEST( FRAM_OperationalTests, readStatusRegister )
 TEST( FRAM_OperationalTests, writeEnable )
 {
   using namespace FRAM::Fujitsu;
-  
+
   reset_test();
   fram.attachSPI( spi );
   fram.initialize( &setup, Chimera::Hardware::SubPeripheralMode::BLOCKING );
-  
+
   fram.writeDisable();
   CHECK_FALSE( ( fram.readStatus() & MB85RS64V_SR_BIT_WEL ) );
 
   auto result = fram.writeEnable();
-  CHECK_EQUAL( result, Chimera::CommonStatusCodes::OK );
+  CHECK_EQUAL( result, Chimera::Status::OK );
   CHECK( ( fram.readStatus() & MB85RS64V_SR_BIT_WEL ) );
 }
 
 TEST( FRAM_OperationalTests, writeDisable )
 {
   using namespace FRAM::Fujitsu;
-  
+
   reset_test();
   fram.attachSPI( spi );
   fram.initialize( &setup, Chimera::Hardware::SubPeripheralMode::BLOCKING );
-  
+
   fram.writeEnable();
   CHECK( ( fram.readStatus() & MB85RS64V_SR_BIT_WEL ) );
 
   auto result = fram.writeDisable();
-  CHECK_EQUAL( result, Chimera::CommonStatusCodes::OK );
+  CHECK_EQUAL( result, Chimera::Status::OK );
   CHECK_FALSE( ( fram.readStatus() & MB85RS64V_SR_BIT_WEL ) );
 }
 
 TEST( FRAM_OperationalTests, writeStatusRegister )
 {
   using namespace FRAM::Fujitsu;
-  
+
   reset_test();
   fram.attachSPI( spi );
   fram.initialize( &setup, Chimera::Hardware::SubPeripheralMode::BLOCKING );
@@ -231,7 +231,7 @@ TEST( FRAM_OperationalTests, writeStatusRegister )
   ------------------------------------------------*/
   fram.writeEnable();
   auto result = fram.writeStatusRegister( 0 );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
   CHECK_EQUAL( 0u, fram.readStatus() );
 
   /*------------------------------------------------
@@ -240,31 +240,31 @@ TEST( FRAM_OperationalTests, writeStatusRegister )
   ------------------------------------------------*/
   fram.writeDisable();
   result = fram.writeStatusRegister( fully_set_val );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
   CHECK( fully_set_val != fram.readStatus() );
-  
+
   /*------------------------------------------------
   Try again, but this time enable writing
   ------------------------------------------------*/
   fram.writeEnable();
   result = fram.writeStatusRegister( fully_set_val );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
   CHECK_EQUAL( fully_set_val, fram.readStatus() );
-  
+
   /*------------------------------------------------
   Try (and fail) to clear the status register
   ------------------------------------------------*/
   fram.writeDisable();
   result = fram.writeStatusRegister( 0u );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
   CHECK_EQUAL( fully_set_val, fram.readStatus() );
-  
+
   /*------------------------------------------------
   Put the chip back to the default state
   ------------------------------------------------*/
   fram.writeEnable();
   result = fram.writeStatusRegister( 0 );
-  CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+  CHECK_EQUAL( Chimera::Status::OK, result );
   CHECK_EQUAL( 0u, fram.readStatus() );
   fram.writeDisable();
 }
@@ -274,7 +274,7 @@ TEST( FRAM_OperationalTests, readWriteData_normal )
   using namespace FRAM::Fujitsu;
 
   size_t address = 0x0000;
-  auto result    = Chimera::CommonStatusCodes::FAIL;
+  auto result    = Chimera::Status::FAIL;
 
   reset_test();
   fram.attachSPI( spi );
@@ -288,10 +288,10 @@ TEST( FRAM_OperationalTests, readWriteData_normal )
   for ( int x = 0; x < 10; x++ )
   {
     result = fram.write( address, randomData.data(), randomData.size() );
-    CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+    CHECK_EQUAL( Chimera::Status::OK, result );
 
     result = fram.read( address, dataBuffer.data(), dataBuffer.size() );
-    CHECK_EQUAL( Chimera::CommonStatusCodes::OK, result );
+    CHECK_EQUAL( Chimera::Status::OK, result );
     CHECK( memcmp( randomData.data(), dataBuffer.data(), dataBuffer.size() ) == 0 );
 
     address += 0x010;

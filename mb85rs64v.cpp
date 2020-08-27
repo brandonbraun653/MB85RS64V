@@ -40,11 +40,11 @@ namespace FRAM::Fujitsu
   {
     using namespace Chimera::SPI;
 
-    Chimera::Status_t result = Chimera::CommonStatusCodes::OK;
+    Chimera::Status_t result = Chimera::Status::OK;
 
     if ( !spi || !CSPin )
     {
-      result = Chimera::CommonStatusCodes::NOT_INITIALIZED;
+      result = Chimera::Status::NOT_INITIALIZED;
     }
     else
     {
@@ -77,7 +77,7 @@ namespace FRAM::Fujitsu
         result = spi->init( tempSetup );
       }
 
-      initialized = ( result == Chimera::CommonStatusCodes::OK );
+      initialized = ( result == Chimera::Status::OK );
     }
 
     return result;
@@ -160,7 +160,7 @@ namespace FRAM::Fujitsu
   Chimera::Status_t MB85RS64V::writeEnable()
   {
     static constexpr uint8_t CMD_LEN = 1;
-    Chimera::Status_t result         = Chimera::CommonStatusCodes::NOT_AVAILABLE;
+    Chimera::Status_t result         = Chimera::Status::NOT_AVAILABLE;
 
     if ( initialized && Chimera::Threading::LockGuard( *this ).lock() )
     {
@@ -177,7 +177,7 @@ namespace FRAM::Fujitsu
 
   Chimera::Status_t MB85RS64V::writeDisable()
   {
-    Chimera::Status_t result = Chimera::CommonStatusCodes::NOT_AVAILABLE;
+    Chimera::Status_t result = Chimera::Status::NOT_AVAILABLE;
 
     if ( initialized && Chimera::Threading::LockGuard( *this ).lock() )
     {
@@ -187,7 +187,7 @@ namespace FRAM::Fujitsu
       spi->await( Chimera::Event::Trigger::TRANSFER_COMPLETE, 100 );
 
       setChipSelect( Chimera::GPIO::State::HIGH );
-      result = Chimera::CommonStatusCodes::OK;
+      result = Chimera::Status::OK;
     }
 
     return result;
@@ -196,7 +196,7 @@ namespace FRAM::Fujitsu
   Chimera::Status_t MB85RS64V::writeStatusRegister( const uint8_t val )
   {
     static constexpr uint8_t CMD_LEN = 2;
-    Chimera::Status_t result         = Chimera::CommonStatusCodes::NOT_AVAILABLE;
+    Chimera::Status_t result         = Chimera::Status::NOT_AVAILABLE;
 
     if ( initialized )
     {
@@ -210,7 +210,7 @@ namespace FRAM::Fujitsu
 
       setChipSelect( Chimera::GPIO::State::HIGH );
 
-      result = Chimera::CommonStatusCodes::OK;
+      result = Chimera::Status::OK;
     }
 
     return result;
@@ -221,12 +221,12 @@ namespace FRAM::Fujitsu
   ------------------------------------------------*/
   Chimera::Status_t MB85RS64V::writeProtect( const bool state )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::readProtect( const bool state )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   /*------------------------------------------------
@@ -234,12 +234,12 @@ namespace FRAM::Fujitsu
   ------------------------------------------------*/
   Chimera::Status_t MB85RS64V::write( const size_t address, const uint8_t *const data, const size_t length )
   {
-    Chimera::Status_t result = Chimera::CommonStatusCodes::NOT_AVAILABLE;
+    Chimera::Status_t result = Chimera::Status::NOT_AVAILABLE;
 
     if ( initialized && Chimera::Threading::LockGuard( *this ).lock() )
     {
       static constexpr size_t CMD_LEN = 3;
-      result                          = Chimera::CommonStatusCodes::OK;
+      result                          = Chimera::Status::OK;
 
       /*------------------------------------------------
       Upon completion of the previous write cycle, the write enable flag
@@ -266,12 +266,12 @@ namespace FRAM::Fujitsu
 
   Chimera::Status_t MB85RS64V::read( const size_t address, uint8_t *const data, const size_t length )
   {
-    Chimera::Status_t result = Chimera::CommonStatusCodes::OK;
+    Chimera::Status_t result = Chimera::Status::OK;
 
     if ( initialized && Chimera::Threading::LockGuard( *this ).lock() )
     {
       static constexpr size_t CMD_LEN = 3;
-      result                          = Chimera::CommonStatusCodes::OK;
+      result                          = Chimera::Status::OK;
 
       txBuffer[ 0 ] = MB85RS64V_OP_READ;
       txBuffer[ 1 ] = ( ( address & addressMask ) >> 8 ) & 0xFF;
@@ -292,22 +292,22 @@ namespace FRAM::Fujitsu
 
   Chimera::Status_t MB85RS64V::erase( const size_t address, const size_t length )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::writeCompleteCallback( const Chimera::Function::void_func_uint32_t func )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::readCompleteCallback( const Chimera::Function::void_func_uint32_t func )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::eraseCompleteCallback( const Chimera::Function::void_func_uint32_t func )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   bool MB85RS64V::isInitialized()
@@ -321,17 +321,17 @@ namespace FRAM::Fujitsu
   Chimera::Status_t MB85RS64V::attachSPI( Chimera::SPI::SPIClass_sPtr &spi )
   {
     this->spi = spi;
-    return Chimera::CommonStatusCodes::OK;
+    return Chimera::Status::OK;
   }
 
   Chimera::Status_t MB85RS64V::attachSPI( Chimera::SPI::SPIClass_sPtr &spi, Chimera::SPI::DriverConfig &setup )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::attachSPI( Chimera::SPI::SPIClass_uPtr spi )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::attachCS( Chimera::GPIO::PinInit &CSConfig )
@@ -346,17 +346,17 @@ namespace FRAM::Fujitsu
 
   Chimera::Status_t MB85RS64V::attachCS( Chimera::GPIO::GPIOClass_sPtr &CSPin )
   {
-    return Chimera::CommonStatusCodes::NOT_SUPPORTED;
+    return Chimera::Status::NOT_SUPPORTED;
   }
 
   Chimera::Status_t MB85RS64V::attachCS( Chimera::GPIO::GPIOClass_uPtr CSPin )
   {
     this->CSPin = std::move( CSPin );
-    return Chimera::CommonStatusCodes::OK;
+    return Chimera::Status::OK;
   }
 
   /*------------------------------------------------
-  Private class functions 
+  Private class functions
   ------------------------------------------------*/
   Chimera::Status_t MB85RS64V::setChipSelect( const Chimera::GPIO::State value )
   {
